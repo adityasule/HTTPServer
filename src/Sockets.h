@@ -46,7 +46,13 @@ namespace Sockets
             int write();
             int listen();
             int accept();
-            void bind();
+            
+            /**
+             * Function opens a Socket for a given hostname. Socket is bound to specified port.
+             */
+            int open(char *hostname, char *service);
+
+            int connect();
 
             /**
              * Because RAII, this one is a maybe. Also if we do have it, then the socket should turn
