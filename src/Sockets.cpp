@@ -58,41 +58,55 @@ Sockets::Socket::~Socket()
     }
 }
 
-int Socket::bind()
+int Sockets::Socket::bind()
 {
 	//associates or binds a socket with a host and port
 	//returns -1 if error in binding 
-	return bind(socket_fd, server_info->ai_addr, server_info->ai_addrlen);
+    // TODO: Exceptions Exceptions!
+    // TODO: This functon call is bad!!
+    return ::bind(socket_fd, sa->ai_addr, sa->ai_addrlen);
 }
 
-int Socket::listen()
+int Sockets::Socket::listen(int &backlog)
 {
 	//let socket listen for incoming connections
 	//socket can hold and listen to 10 incoming connections in queue until a connection is accepted
 	//returns -1 if error in listening
-	return listen(socket_fd, 10);
+    // TODO: Freaking Exceptions maaaaan!
+    return ::listen(socket_fd, backlog);
 }
 
-void Socket::accept()
+Sockets::Socket Sockets::Socket::accept()
 {
 	//selects a connection from the listening queue and gives that function 
 	//a new socket descriptor
 	//new socket descriptor can be used in sending and receiving processes
 	//sets newsocket_fd to -1 if error accepting
-	struct sockaddr_storage client_addr;
-	socklen_t client_size = sizeof client_addr;
-	newsocket_fd = accept(socket_fd, (struct sockaddr *)&client_addr, &client_size)
+	sockaddr_storage client_addr;
+	socklen_t client_size = sizeof(client_addr);
+	int newsocket_fd = ::accept(socket_fd, (struct sockaddr *)&client_addr, &client_size);
+    
+    return Socket(newsocket_fd);
 }
 
-int Socket::send(char * msg)
+// This function is completely broken fix!
+/*int Sockets::Socket::send()
 {
 	//sends message to a client socket
 	//returns the number of bytes of the message
 	//if -1, there was an error in sending
 	//if the number of bytes_sent is not equal to the number of bytes of the message
 	//full message not sent, so keep sending
+    
+    // Since this is a threaded application this function should not block thread at this level
+    // I think it is best to return the length of bytes written
+    // TODO: Throw dem exceptions son!
+
 	int length = strlen(msg);
-	int bytes_sent = send(newsocket_fd, msg, length, 0);
+
+    // this line will no longer compile!
+	//int bytes_sent = send(newsocket_fd, msg, length, 0);
+    int bytes_sent = 0;
 	if (bytes_sent == -1)
 		return -1;
 	if (bytes_sent != length)
@@ -104,7 +118,7 @@ int Socket::send(char * msg)
 		}
 	}
 	return bytes_sent;
-}
+}*/
 
 
 

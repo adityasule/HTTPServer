@@ -50,9 +50,9 @@ namespace Sockets
             /**
              * Socket starts listening for incoming connections. Taks backlog as param.
              */
-			int listen(int &param);
+			int listen(int &backlog);
             int connect();
-			int accept();
+            Socket accept();
 			int send(char *buff, int &len);
             int recv(char *buff, int &len);
 
