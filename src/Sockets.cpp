@@ -1,4 +1,4 @@
-#include "socket.h"
+#include "Sockets.h"
 using namespace std;
 
 Socket::Socket(char * host, char * service)
