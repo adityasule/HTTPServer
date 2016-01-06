@@ -29,6 +29,12 @@ Socket::Socket(char * host, char * service)
 	//socket_fd and server_info can now be used in the other socket methods
 }
 
+Socket::~Socket()
+{
+	close(socket_fd);
+	//still need to write
+}
+
 int Socket::bind()
 {
 	//associates or binds a socket with a host and port
@@ -70,7 +76,8 @@ int Socket::send(char * msg)
 	{
 		while (bytes_sent != length)
 		{
-			
+			//keep sending until full msg sent
+			//delete bytes_sent number of bytes from beginning of message and send remaining message?
 		}
 	}
 	return bytes_sent;
