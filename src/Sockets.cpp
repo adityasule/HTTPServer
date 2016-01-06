@@ -1,12 +1,24 @@
 #include "Sockets.h"
-using namespace std;
 
-Socket::Socket(char * host, char * service)
+#include <exception>
+
+
+using std::cerr;
+using std::endl;
+
+Sockets::Socket::Socket()
+{
+    socket_fd = 0;
+    sa = nullptr;
+}
+
+Sockets::Socket::Socket(char * host, char * service)
 {
 	struct addrinfo hints;
 	struct addrinfo * res;
-	memset(&hints, 0, sizeof hints);             							//initialiazes struct to 0
-	hints.ai_family = AF_UNSPEC;                 							//supports both IP4/6
+    //initialiazes struct to 0
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;             							//TCP socktype
 	//IDK IF WE HAVE TO SET HINTS.AI_FLAGS??
 	int status = getaddrinfo(host, service, &host, &res);
