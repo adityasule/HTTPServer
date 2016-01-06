@@ -1,38 +1,42 @@
 #include "Sockets.h"
-
 #include <exception>
 
 
 using std::cerr;
 using std::endl;
 
-Sockets::Socket::Socket()
+Sockets::Socket::Socket(const int &sock_fd)
 {
-    socket_fd = 0;
+    socket_fd = sock_fd;
     sa = nullptr;
 }
 
-Sockets::Socket::Socket(char * host, char * service)
+Sockets::Socket::Socket(const char *host, const char *service)
 {
-	struct addrinfo hints;
-	struct addrinfo * res;
+    socket_fd = 0;
+    sa = nullptr;
+	addrinfo hints, *res;
+
     //initialiazes struct to 0
 	memset(&hints, 0, sizeof hints);
+    
 	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;             							//TCP socktype
-	//IDK IF WE HAVE TO SET HINTS.AI_FLAGS??
-	int status = getaddrinfo(host, service, &host, &res);
-	if (status != 0)
+	hints.ai_socktype = SOCK_STREAM; 
+
+    int status;
+	if (!(status = getaddrinfo(host, service, &hints, &res)))
 	{
 		//error in getting address information, print error and exit program
 		//gai_strerror prints corresponding text error for getaddrinfo status
+        // TODO: Make throw exception instead of crashing!! log to cerr though!
+        //       Should throw std::runtime_error !!
 		cerr << "Error in getaddrinfo: " << gai_strerror(status) << endl;
 		exit(EXIT_FAILURE);
 	}
 	//loop through res linked list looking for a valid struct addrinfo *
-	for (server_info = res; server_info != NULL; server_info = server_info->ai_next)
+	for (sa = res; sa != nullptr; sa = sa->ai_next)
 	{
-		socket_fd = socket(server_info->ai_family, server_info->ai_socktype, server_info->ai_protocol);
+		socket_fd = socket(sa->ai_family, sa->ai_socktype, sa->ai_protocol);
 		if (socket_fd != -1)
 			break;
 	}
@@ -41,10 +45,17 @@ Sockets::Socket::Socket(char * host, char * service)
 	//socket_fd and server_info can now be used in the other socket methods
 }
 
-Socket::~Socket()
+Sockets::Socket::~Socket()
 {
-	close(socket_fd);
-	//still need to write
+    if (socket_fd)
+    {
+        close(socket_fd);
+    }
+
+    if (sa != nullptr)
+    {
+        freeaddrinfo(nullptr);
+    }
 }
 
 int Socket::bind()

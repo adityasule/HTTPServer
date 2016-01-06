@@ -10,7 +10,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include <stdlib.h>
+#include <cstdlib>
+#include <unistd.h>
 
 namespace Sockets
 {
@@ -28,12 +29,12 @@ namespace Sockets
              * for system other methods. This is okay for RAII because the socket file
              * descriptor cannot be acquired from another socket object.
              */
-            Socket(int &sock_fd);
+            Socket(const int &sock_fd);
 
             /**
              * Construct socket from hostname and portnumber/service
              */
-			Socket(char *host, char *service);
+			Socket(const char *host, const char *service);
 
             /**
              * Default destructor for the Socket class
