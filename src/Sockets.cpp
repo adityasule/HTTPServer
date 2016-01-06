@@ -7,29 +7,29 @@ using std::endl;
 
 Sockets::Socket::Socket(const int &sock_fd)
 {
-    socket_fd = sock_fd;
-    sa = nullptr;
+	socket_fd = sock_fd;
+	sa = nullptr;
 }
 
 Sockets::Socket::Socket(const char *host, const char *service)
 {
-    socket_fd = 0;
-    sa = nullptr;
+	socket_fd = 0;
+	sa = nullptr;
 	addrinfo hints, *res;
 
-    //initialiazes struct to 0
+	//initialiazes struct to 0
 	memset(&hints, 0, sizeof hints);
-    
+
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM; 
 
-    int status;
+	int status;
 	if (!(status = getaddrinfo(host, service, &hints, &res)))
 	{
 		//error in getting address information, print error and exit program
 		//gai_strerror prints corresponding text error for getaddrinfo status
-        // TODO: Make throw exception instead of crashing!! log to cerr though!
-        //       Should throw std::runtime_error !!
+		// TODO: Make throw exception instead of crashing!! log to cerr though!
+		//       Should throw std::runtime_error !!
 		cerr << "Error in getaddrinfo: " << gai_strerror(status) << endl;
 		exit(EXIT_FAILURE);
 	}
@@ -47,24 +47,24 @@ Sockets::Socket::Socket(const char *host, const char *service)
 
 Sockets::Socket::~Socket()
 {
-    if (socket_fd)
-    {
-        close(socket_fd);
-    }
+	if (socket_fd)
+	{
+		close(socket_fd);
+	}
 
-    if (sa != nullptr)
-    {
-        freeaddrinfo(nullptr);
-    }
+	if (sa != nullptr)
+	{
+		freeaddrinfo(nullptr);
+	}
 }
 
 int Sockets::Socket::bind()
 {
 	//associates or binds a socket with a host and port
 	//returns -1 if error in binding 
-    // TODO: Exceptions Exceptions!
-    // TODO: This functon call is bad!!
-    return ::bind(socket_fd, sa->ai_addr, sa->ai_addrlen);
+	// TODO: Exceptions Exceptions!
+	// TODO: This functon call is bad!!
+	return ::bind(socket_fd, sa->ai_addr, sa->ai_addrlen);
 }
 
 int Sockets::Socket::listen(int &backlog)
@@ -72,8 +72,8 @@ int Sockets::Socket::listen(int &backlog)
 	//let socket listen for incoming connections
 	//socket can hold and listen to 10 incoming connections in queue until a connection is accepted
 	//returns -1 if error in listening
-    // TODO: Freaking Exceptions maaaaan!
-    return ::listen(socket_fd, backlog);
+	// TODO: Freaking Exceptions maaaaan!
+	return ::listen(socket_fd, backlog);
 }
 
 Sockets::Socket Sockets::Socket::accept()
@@ -85,39 +85,40 @@ Sockets::Socket Sockets::Socket::accept()
 	sockaddr_storage client_addr;
 	socklen_t client_size = sizeof(client_addr);
 	int newsocket_fd = ::accept(socket_fd, (struct sockaddr *)&client_addr, &client_size);
-    
-    return Socket(newsocket_fd);
+
+	return Socket(newsocket_fd);
 }
 
 // This function is completely broken fix!
+// Also freaking indent it right.
 /*int Sockets::Socket::send()
 {
-	//sends message to a client socket
-	//returns the number of bytes of the message
-	//if -1, there was an error in sending
-	//if the number of bytes_sent is not equal to the number of bytes of the message
-	//full message not sent, so keep sending
-    
-    // Since this is a threaded application this function should not block thread at this level
-    // I think it is best to return the length of bytes written
-    // TODO: Throw dem exceptions son!
+//sends message to a client socket
+//returns the number of bytes of the message
+//if -1, there was an error in sending
+//if the number of bytes_sent is not equal to the number of bytes of the message
+//full message not sent, so keep sending
 
-	int length = strlen(msg);
+// Since this is a threaded application this function should not block thread at this level
+// I think it is best to return the length of bytes written
+// TODO: Throw dem exceptions son!
 
-    // this line will no longer compile!
-	//int bytes_sent = send(newsocket_fd, msg, length, 0);
-    int bytes_sent = 0;
-	if (bytes_sent == -1)
-		return -1;
-	if (bytes_sent != length)
-	{
-		while (bytes_sent != length)
-		{
-			//keep sending until full msg sent
-			//delete bytes_sent number of bytes from beginning of message and send remaining message?
-		}
-	}
-	return bytes_sent;
+int length = strlen(msg);
+
+// this line will no longer compile!
+//int bytes_sent = send(newsocket_fd, msg, length, 0);
+int bytes_sent = 0;
+if (bytes_sent == -1)
+return -1;
+if (bytes_sent != length)
+{
+while (bytes_sent != length)
+{
+//keep sending until full msg sent
+//delete bytes_sent number of bytes from beginning of message and send remaining message?
+}
+}
+return bytes_sent;
 }*/
 
 
