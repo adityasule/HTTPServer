@@ -7,7 +7,7 @@ using std::endl;
 
 /* 
    Questions from a programming noob that doesn't know many many things in the world. Plz answer sirjee
-   1. what is with these weird function calls? ::bind() or ::listen(). why is there an :: before them??
+   1. what is with these weird function calls? ::bind() or ::listen() like on line 89. why is there an :: before them??
    2. what do you mean by logging to cerr? i didn't understand that when you said it. Or how exactly do you want
       to handle exceptions. cuz im dumb and idk what logging to cerr means lol
    3. In the accept function, I can see that a newsocket_fd is created. however, you call Socket(newsocket_fd)
