@@ -5,6 +5,22 @@
 using std::cerr;
 using std::endl;
 
+/* 
+   Questions from a programming noob that doesn't know many many things in the world. Plz answer sirjee
+   1. what is with these weird function calls? ::bind() or ::listen(). why is there an :: before them??
+   2. what do you mean by logging to cerr? i didn't understand that when you said it. Or how exactly do you want
+      to handle exceptions. cuz im dumb and idk what logging to cerr means lol
+   3. In the accept function, I can see that a newsocket_fd is created. however, you call Socket(newsocket_fd)
+      which calls the constructor that replaces socket_fd with the newsocket_fd. Isn't this removing the old 
+      socket that we still need that was listening to other connections?
+   4. Why is one of our private members a decltype thing? what is its purpose in our code?
+   5. I still don't understand why we declared a namespace sockets and then theres a class sockets defined within 
+      the namespace? what was the purpose of this as well? I thought we could just make a class and use a socket object
+      while making a server? what exactly is the namespace allowing us to do?
+   6. how you compile dis stuff without a finished makefile? g++ sockets.cpp sockets.h -o sock or something along the 
+      wouldn't work because we have all these additional libraries and shit right?
+*/
+
 Sockets::Socket::Socket(const int &sock_fd)
 {
 	socket_fd = sock_fd;
@@ -23,16 +39,21 @@ Sockets::Socket::Socket(const char *host, const char *service)
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM; 
 
-	int status;
-	if (!(status = getaddrinfo(host, service, &hints, &res)))
+	try
 	{
-		//error in getting address information, print error and exit program
-		//gai_strerror prints corresponding text error for getaddrinfo status
-		// TODO: Make throw exception instead of crashing!! log to cerr though!
-		//       Should throw std::runtime_error !!
-		cerr << "Error in getaddrinfo: " << gai_strerror(status) << endl;
-		exit(EXIT_FAILURE);
+		if (!(status = getaddrinfo(host, service, &hints, &res)))
+		{
+			//error in getting address information, throw error and log to cerr
+			//gai_strerror prints corresponding text error for getaddrinfo status
+			throw runtime_error(gai_strerror(status));
+		}
 	}
+
+	catch (exception & e)
+	{
+		//log to cerr how exactly? or what exactly do we do here?
+	}
+
 	//loop through res linked list looking for a valid struct addrinfo *
 	for (sa = res; sa != nullptr; sa = sa->ai_next)
 	{
@@ -40,9 +61,9 @@ Sockets::Socket::Socket(const char *host, const char *service)
 		if (socket_fd != -1)
 			break;
 	}
-	//server_info points to a valid struct addrinfo * 
+	//sa points to a valid struct addrinfo * 
 	//socket is created and represented by the socket descriptor socket_fd
-	//socket_fd and server_info can now be used in the other socket methods
+	//socket_fd and sa can now be used in the other socket methods
 }
 
 Sockets::Socket::~Socket()
@@ -54,7 +75,7 @@ Sockets::Socket::~Socket()
 
 	if (sa != nullptr)
 	{
-		freeaddrinfo(nullptr);
+		freeaddrinfo(sa);
 	}
 }
 
@@ -64,7 +85,8 @@ int Sockets::Socket::bind()
 	//returns -1 if error in binding 
 	// TODO: Exceptions Exceptions!
 	// TODO: This functon call is bad!!
-	return ::bind(socket_fd, sa->ai_addr, sa->ai_addrlen);
+
+    return ::bind(socket_fd, sa->ai_addr, sa->ai_addrlen);
 }
 
 int Sockets::Socket::listen(int &backlog)
@@ -73,6 +95,7 @@ int Sockets::Socket::listen(int &backlog)
 	//socket can hold and listen to 10 incoming connections in queue until a connection is accepted
 	//returns -1 if error in listening
 	// TODO: Freaking Exceptions maaaaan!
+
 	return ::listen(socket_fd, backlog);
 }
 
