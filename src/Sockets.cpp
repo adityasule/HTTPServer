@@ -175,12 +175,48 @@ int Sockets::Socket::connect()
 
 int Sockets::Socket::send(char *buff, int &len)
 {
+    try
+    {
+        int bytes_sent = ::send(socket_fd, buff, len, 0);
+        if (bytes_sent == -1)
+        {
+            throw std::runtime_error("socket unable to send message");
+        }
+        if (bytes_sent != len)
+        {
+            throw std::runtime_error("socket unable to send full message");
+        }
+    }
 
+    catch(exception &e)
+    {
+        cerr << "runtime_error exception: " << e.what() << endl;
+    }
+
+    return bytes_sent;
 }
 
 int Sockets::Socket::recv(char *buff, int &len)
 {
+    try
+    {
+        int bytes_read = ::recv(socket_fd, buff, len, 0);
+        if (bytes_read == -1)
+        {
+            throw std::runtime_error("socket unable to receive message");
+        }
+        if (bytes_read == 0)
+        {
+            throw std::runtime_error("sending side connection closed");
+        }
+    }
 
+    catch(exception &e)
+    {
+        cerr << "runtime_error exception: " << e.what() << endl;
+    }
+
+    return bytes_read;
 }
 
 
