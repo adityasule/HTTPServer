@@ -15,7 +15,6 @@
 
 namespace Sockets
 {
-
     class Socket
     {
 
