@@ -1,9 +1,11 @@
 #include "Sockets.h"
 #include <exception>
+#include <stdexcept>
 
 using std::cerr;
 using std::endl;
-
+using std::exception;
+using std::runtime_error;
 
 Sockets::Socket::Socket(const int &sock_fd)
 {
@@ -31,7 +33,7 @@ Sockets::Socket::Socket(const char *host, const char *service)
         {
             //error in getting address information, throw error and log to cerr 
             //gai_strerror prints corresponding text error for getaddrinfo status
-            throw std::runtime_error(gai_strerror(status));
+            throw runtime_error(gai_strerror(status));
         }
     }
 
@@ -54,7 +56,7 @@ Sockets::Socket::Socket(const char *host, const char *service)
         //in case there is an error like you say from your experiments
         if (socket_fd == -1)
         {
-            throw std::runtime_error("No valid struct addrinfo found")
+            throw runtime_error("No valid struct addrinfo found");
         }
     }
 
@@ -91,7 +93,7 @@ int Sockets::Socket::bind()
     {
         if ((status = ::bind(socket_fd, sa->ai_addr, sa->ai_addrlen)) == -1)
         {
-            throw std::runtime_error("Socket cannot bind to host/service");
+            throw runtime_error("Socket cannot bind to host/service");
         }
     }
 
@@ -113,7 +115,7 @@ int Sockets::Socket::listen(int &backlog)
     {
         if ((status = ::listen(socket_fd, backlog)) == -1)
         {
-            throw std::runtime_error("socket unable to listen to connection");
+            throw runtime_error("socket unable to listen to connection");
         }
     }
 
@@ -131,15 +133,16 @@ Sockets::Socket Sockets::Socket::accept()
     //a new socket descriptor
     //new socket descriptor can be used in sending and receiving processes
     //sets newsocket_fd to -1 if error accepting
+    int newsocket_fd;
     sockaddr_storage client_addr;
     socklen_t client_size = sizeof(client_addr);
 
     try
     {
-        int newsocket_fd = ::accept(socket_fd, (struct sockaddr *)&client_addr, &client_size);
+        newsocket_fd = ::accept(socket_fd, (struct sockaddr *)&client_addr, &client_size);
         if (newsocket_fd == -1)
         {
-            throw runtime_error("socket unable to accept connection")
+            throw runtime_error("socket unable to accept connection");
         }
     }
 
@@ -161,7 +164,7 @@ int Sockets::Socket::connect()
     {
         if ((status = ::connect(socket_fd, sa->ai_addr, sa->ai_addrlen)) == -1)
         {
-            throw std::runtime_error("socket unable to connect to host/service");
+            throw runtime_error("socket unable to connect to host/service");
         }
     }
 
@@ -175,16 +178,18 @@ int Sockets::Socket::connect()
 
 int Sockets::Socket::send(char *buff, int &len)
 {
+    int bytes_sent;
+
     try
     {
-        int bytes_sent = ::send(socket_fd, buff, len, 0);
+        bytes_sent = ::send(socket_fd, buff, len, 0);
         if (bytes_sent == -1)
         {
-            throw std::runtime_error("socket unable to send message");
+            throw runtime_error("socket unable to send message");
         }
         if (bytes_sent != len)
         {
-            throw std::runtime_error("socket unable to send full message");
+            throw runtime_error("socket unable to send full message");
         }
     }
 
@@ -198,16 +203,18 @@ int Sockets::Socket::send(char *buff, int &len)
 
 int Sockets::Socket::recv(char *buff, int &len)
 {
+    int bytes_read;
+
     try
     {
-        int bytes_read = ::recv(socket_fd, buff, len, 0);
+        bytes_read = ::recv(socket_fd, buff, len, 0);
         if (bytes_read == -1)
         {
-            throw std::runtime_error("socket unable to receive message");
+            throw runtime_error("socket unable to receive message");
         }
         if (bytes_read == 0)
         {
-            throw std::runtime_error("sending side connection closed");
+            throw runtime_error("sending side connection closed");
         }
     }
 
