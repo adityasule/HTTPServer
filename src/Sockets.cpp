@@ -85,8 +85,6 @@ int Sockets::Socket::bind()
 {
 	//associates or binds a socket with a host and port
 	//returns -1 if error in binding 
-	// TODO: Exceptions Exceptions!
-	// TODO: This functon call is bad!!
 	int status;
 
 	try 
@@ -109,8 +107,6 @@ int Sockets::Socket::listen(int &backlog)
 {
 	//let socket listen for incoming connections
 	//socket can hold and listen to 10 incoming connections in queue until a connection is accepted
-	//returns -1 if error in listening
-	// TODO: Freaking Exceptions maaaaan!
 	int status;
 
 	try 
@@ -149,12 +145,42 @@ Sockets::Socket Sockets::Socket::accept()
 
 	catch(exception &e)
 	{
-		cerr << "runtime_error: " << e.what() << endl;
+		cerr << "runtime_error exception: " << e.what() << endl;
 	}
 
 	//if an exception is caught in accepting, an invalid socket with fd -1 will be returned
 	//otherwise, a valid socket object with a valid fd is returned
 	return Socket(newsocket_fd);
+}
+
+int Sockets::Socket::connect()
+{
+	int status;
+
+	try 
+	{
+		if ((status = ::connect(socket_fd, sa->ai_addr, sa->ai_addrlen)) == -1)
+		{
+			throw std::runtime_error("socket unable to connect to host/service");
+		}
+	}
+
+	catch(exception &e)
+	{
+		cerr << "runtime_error exception: " << e.what() << endl;
+	}
+
+	return status;
+}
+
+int Sockets::Socket::send(char *buff, int &len)
+{
+	
+}
+
+int Sockets::Socket::recv(char *buff, int &len)
+{
+
 }
 
 
