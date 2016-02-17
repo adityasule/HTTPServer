@@ -20,7 +20,7 @@ Core::Socket::Socket(const char* host, const char* service)
     sa = nullptr;
     addrinfo hints, *res;
 
-    //initialiazes struct to 0
+    //initialiazes hints struct to 0
     memset(&hints, 0, sizeof hints);
 
     hints.ai_family = AF_UNSPEC;
@@ -44,13 +44,12 @@ Core::Socket::Socket(const char* host, const char* service)
         }
     }
     //finished looping through linked list, error if socket_fd is still -1
-    //I included the for loop within the try b/c it would destroy the socket
     //in case there is an error like you say from your experiments
     if (socket_fd == -1)
     {
+        char const* temp = "Hello";
         int i = 0;
-        char* hello = "Hello";
-        throw socket_error("No valid struct addrinfo found", 0);
+        throw socket_error("No valid struct addrinfo found", i);
     }
 }
 
