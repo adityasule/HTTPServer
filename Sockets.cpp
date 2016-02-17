@@ -7,7 +7,7 @@ using std::cerr;
 using std::endl;
 
 typedef Core::socket_runtime_error socket_error;
-typedef Core::gai_runtime_error gai_error;
+typedef Core::gai_runtime_error address_error;
 
 Core::Socket::Socket(const int& sock_fd)
 {
@@ -32,7 +32,7 @@ Core::Socket::Socket(const char* host, const char* service)
     {
         //error in getting address information, throw error and log to cerr 
         //gai_strerror prints corresponding text error for getaddrinfo status
-        throw gai_error(gai_strerror(status), status);
+        throw address_error(gai_strerror(status), status);
     }
 
     //loop through res linked list looking for a valid struct addrinfo *
@@ -69,7 +69,7 @@ void Core::Socket::bind()
 {
     //associates or binds a socket with a host and port
     //returns -1 if error in binding 
-    if ((:bind(socket_fd, sa->ai_addr, sa->ai_addrlen) == -1)
+    if (::bind(socket_fd, sa->ai_addr, sa->ai_addrlen) == -1)
     {
         throw socket_error("Socket cannot bind to host/service", errno);
     }
@@ -81,7 +81,7 @@ void Core::Socket::listen(int &backlog)
     //socket can hold and listen to 10 incoming connections in queue until a connection is accepted
     if ((::listen(socket_fd, backlog)) == -1)
     {
-        throw socket_error("socket unable to listen to connection");
+        throw socket_error("socket unable to listen to connection", errno);
     }
 }
 
@@ -136,6 +136,3 @@ int Core::Socket::recv(char *buff, int &len)
         }
     return bytes_read;
 }
-
-
-

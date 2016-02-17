@@ -51,8 +51,8 @@ namespace Core
             /**
              * Socket starts listening for incoming connections. Taks backlog as param.
              */
-            int listen(int &backlog);
-            int connect();
+            void listen(int &backlog);
+            void connect();
             Socket accept();
             int send(char *buff, int &len);
             int recv(char *buff, int &len);
@@ -61,7 +61,6 @@ namespace Core
 
             int socket_fd;
             struct addrinfo * sa;
-            decltype(sa->ai_socktype) socktype;
     };
 }
 
