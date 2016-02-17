@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include <unistd.h>
 
-namespace Sockets
+namespace Core
 {
     class Socket
     {

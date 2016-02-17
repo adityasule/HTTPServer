@@ -1,19 +1,20 @@
 #include "Sockets.h"
+#include "Error.h"
 #include <exception>
 #include <stdexcept>
 
 using std::cerr;
 using std::endl;
-using std::exception;
-using std::runtime_error;
 
-Sockets::Socket::Socket(const int &sock_fd)
+typedef Core::socket_runtime_error socket_error;
+
+Core::Socket::Socket(const int& sock_fd)
 {
     socket_fd = sock_fd;
     sa = nullptr;
 }
 
-Sockets::Socket::Socket(const char *host, const char *service)
+Core::Socket::Socket(const char* host, const char* service)
 {
     socket_fd = 0;
     sa = nullptr;
@@ -26,51 +27,34 @@ Sockets::Socket::Socket(const char *host, const char *service)
     hints.ai_socktype = SOCK_STREAM; 
 
     int status;
-
-    try
+    if (!(status = getaddrinfo(host, service, &hints, &res)))
     {
-        if (!(status = getaddrinfo(host, service, &hints, &res)))
-        {
-            //error in getting address information, throw error and log to cerr 
-            //gai_strerror prints corresponding text error for getaddrinfo status
-            throw runtime_error(gai_strerror(status));
-        }
+        //error in getting address information, throw error and log to cerr 
+        //gai_strerror prints corresponding text error for getaddrinfo status
+        throw socket_error(gai_strerror(status), status);
     }
 
-    catch (exception &e)
+    //loop through res linked list looking for a valid struct addrinfo *
+    for (sa = res; sa != nullptr; sa = sa->ai_next)
     {
-        cerr << "runtime_error exception: " << e.what() << endl;
-    }
-
-    try
-    {
-        //loop through res linked list looking for a valid struct addrinfo *
-        for (sa = res; sa != nullptr; sa = sa->ai_next)
+        socket_fd = socket(sa->ai_family, sa->ai_socktype, sa->ai_protocol);
+        if (socket_fd != -1)
         {
-            socket_fd = socket(sa->ai_family, sa->ai_socktype, sa->ai_protocol);
-            if (socket_fd != -1)
-                break;
-        }
-        //finished looping through linked list, error if socket_fd is still -1
-        //I included the for loop within the try b/c it would destroy the socket
-        //in case there is an error like you say from your experiments
-        if (socket_fd == -1)
-        {
-            throw runtime_error("No valid struct addrinfo found");
+            break;
         }
     }
-
-    catch (exception &t)
+    //finished looping through linked list, error if socket_fd is still -1
+    //I included the for loop within the try b/c it would destroy the socket
+    //in case there is an error like you say from your experiments
+    if (socket_fd == -1)
     {
-        //getting the address information and creating a socket for 
-        //the provided host and service failed. even if we try recreating 
-        //the socket again, the same result would happen. so this thread
-        //should just be skipped or ignroed by the server in a higher up code I think
-        cerr << "runtime_error exception: " << t.what() << endl;
+        int i = 0;
+        char* hello = "Hello";
+        throw socket_error("No valid struct addrinfo found", 0);
     }
 }
 
-Sockets::Socket::~Socket()
+Core::Socket::~Socket()
 {
     if (socket_fd)
     {
@@ -83,7 +67,7 @@ Sockets::Socket::~Socket()
     }
 }
 
-int Sockets::Socket::bind()
+int Core::Socket::bind()
 {
     //associates or binds a socket with a host and port
     //returns -1 if error in binding 
@@ -105,7 +89,7 @@ int Sockets::Socket::bind()
     return status;
 }
 
-int Sockets::Socket::listen(int &backlog)
+int Core::Socket::listen(int &backlog)
 {
     //let socket listen for incoming connections
     //socket can hold and listen to 10 incoming connections in queue until a connection is accepted
@@ -127,7 +111,7 @@ int Sockets::Socket::listen(int &backlog)
     return status;
 }
 
-Sockets::Socket Sockets::Socket::accept()
+Core::Socket Core::Socket::accept()
 {
     //selects a connection from the listening queue and gives that function 
     //a new socket descriptor
@@ -156,7 +140,7 @@ Sockets::Socket Sockets::Socket::accept()
     return Socket(newsocket_fd);
 }
 
-int Sockets::Socket::connect()
+int Core::Socket::connect()
 {
     int status;
 
@@ -176,7 +160,7 @@ int Sockets::Socket::connect()
     return status;
 }
 
-int Sockets::Socket::send(char *buff, int &len)
+int Core::Socket::send(char *buff, int &len)
 {
     int bytes_sent;
 
@@ -201,12 +185,10 @@ int Sockets::Socket::send(char *buff, int &len)
     return bytes_sent;
 }
 
-int Sockets::Socket::recv(char *buff, int &len)
+int Core::Socket::recv(char *buff, int &len)
 {
     int bytes_read;
 
-    try
-    {
         bytes_read = ::recv(socket_fd, buff, len, 0);
         if (bytes_read == -1)
         {
@@ -214,15 +196,8 @@ int Sockets::Socket::recv(char *buff, int &len)
         }
         if (bytes_read == 0)
         {
-            throw runtime_error("sending side connection closed");
+            throw socket_error("sending side connection closed");
         }
-    }
-
-    catch(exception &e)
-    {
-        cerr << "runtime_error exception: " << e.what() << endl;
-    }
-
     return bytes_read;
 }
 

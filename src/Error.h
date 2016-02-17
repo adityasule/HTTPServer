@@ -17,24 +17,19 @@ namespace Core
     {
         public:
             /**
-             * The following two constructors are extentions to the std::runtime_error constructors
+             * Constructor to augment std::runtime_error
              */
-            socket_runtime_error(char *what_arg, int &which_arg): runtime_error(what_arg)
+            socket_runtime_error(char const* what_arg, int& error_no_arg): runtime_error(what_arg)
             {
-                which_error = which_arg;
+                error_no = error_no_arg;
             }
 
-            socket_runtime_error(std::string &what_arg, int &which_arg): runtime_error(what_arg)
-            {
-                which_error = which_arg;
-            }
-            
             /**
              * Function to get the error number stored in the thrown exception
              */
-            int which() { return which_error; }
+            int which() const noexcept { return error_no; }
         private:
-            int which_error;
+            int error_no;
     };
 
     /**
