@@ -19,7 +19,7 @@ namespace Core
             /**
              * Constructor to augment std::runtime_error
              */
-            socket_runtime_error(char const* what_arg, int& error_no_arg): runtime_error(what_arg)
+            socket_runtime_error(const char[] what_arg, int& error_no_arg): runtime_error(what_arg)
             {
                 error_no = error_no_arg;
             }
