@@ -46,7 +46,7 @@ namespace Core
              * Binds socket to a given port number. Socket need not be bound for connecting
              * to remote host.
              */
-            int bind();
+            void bind();
 
             /**
              * Socket starts listening for incoming connections. Taks backlog as param.
