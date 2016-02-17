@@ -1,6 +1,9 @@
 # Binary directory
 bin/*
 
+# My ycm file. I don't know why the hell it's here but its annoyint
+.ycm_extra_conf.pyc
+
 # These are unnecessary, but just in case lol yolo
 
 # From github/gitignore

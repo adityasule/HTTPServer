@@ -10,60 +10,60 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <cstdlib>
+#include <unistd.h>
 
-namespace Sockets
+namespace Core
 {
-    /**
-     * The main socket class. Each object behaves like a unique pointer to constructed socket.
-     * I wonder if this is a good approach? Also RAII!
-     * At some point of time, we will have to make this class atomic, or write an atomic wrapper
-     * , or maybe not? I don't know this shit yet.
-     * on top of this class.
-     * TODO: Add documentation to this file. Follow javadoc style (like this comment).
-     */
     class Socket
     {
+
         public:
+
             /**
-             * Default Constructor. Add Doc
+             * No default constructor. Socket can't be initialised empty!
              */
-            Socket();
+            Socket() = delete;
 
             /**
-             * Constructor to construct object with sockfd
+             * Construct Socket from socket file descriptor. File descriptor can be acquired 
+             * for system other methods. This is okay for RAII because the socket file
+             * descriptor cannot be acquired from another socket object.
              */
-            Socket(int sock_fd);
-
-            // TODO: Add constructors for IP address and or hostnames!
+            Socket(const int &sock_fd);
 
             /**
-             * Default Destructor. Add Doc
+             * Construct socket from hostname and portnumber/service
+             */
+            Socket(const char *host, const char *service);
+
+            /**
+             * Default destructor for the Socket class
              */
             ~Socket();
 
-            // These are just functions I think this class will need. Remove comment when you fix this!
-            int read(char *buff, int len);
-            int write();
-            int listen();
-            int accept();
-            
             /**
-             * Function opens a Socket for a given hostname. Socket is bound to specified port.
+             * Binds socket to a given port number. Socket need not be bound for connecting
+             * to remote host.
              */
-            int open(char *hostname, char *service);
+            int bind();
 
+            /**
+             * Socket starts listening for incoming connections. Taks backlog as param.
+             */
+            int listen(int &backlog);
             int connect();
+            Socket accept();
+            int send(char *buff, int &len);
+            int recv(char *buff, int &len);
 
-            /**
-             * Because RAII, this one is a maybe. Also if we do have it, then the socket should turn
-             * useless after it is called. Who knows man.
-             */
-            void close();
         private:
-            int sock_fd;
-    };
 
+            int socket_fd;
+            struct addrinfo * sa;
+            decltype(sa->ai_socktype) socktype;
+    };
 }
 
 #endif
-// sockets.h
+// Sockets.h
