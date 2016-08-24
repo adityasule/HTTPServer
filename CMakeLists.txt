@@ -1,0 +1,5 @@
+cmake_minimum_required (VERSION 2.6)
+project (HTTPServer)
+add_executable (HTTPServer sockets.cpp error.cpp main.cpp)
+set (CMAKE_CXX_FLAGS "-Wall")
+set (CMAKE_CXX_FLAGS "-Werror")

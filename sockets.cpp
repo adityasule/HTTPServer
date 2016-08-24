@@ -1,5 +1,5 @@
-#include "Sockets.h"
-#include "Error.h"
+#include "sockets.h"
+#include "error.h"
 #include <exception>
 #include <stdexcept>
 

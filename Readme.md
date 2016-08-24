@@ -6,7 +6,14 @@ A very simple HTTP Server written in C++. The goal is to be very lightweight, an
 Add Features here!
 
 ### Examples
-Put Examples here!
+To Compile,
+
+```
+$ mkdir bin
+$ cd bin
+$ cmake ..
+$ make
+```
 
 ### Collaborators
 
