@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <stdexcept>
 #include <mutex>
+#include <string>
 
 #ifndef _ERROR_H_
 #define _ERROR_H_
@@ -19,7 +20,12 @@ namespace Core
             /**
              * Constructor to augment std::runtime_error
              */
-            socket_runtime_error(char const* what_arg, int& error_no_arg): runtime_error(what_arg)
+            explicit socket_runtime_error(const char * what_arg, int& error_no_arg): runtime_error(what_arg)
+            {
+                error_no = error_no_arg;
+            }
+
+            explicit socket_runtime_error(const std::string& what_arg, int& error_no_arg): runtime_error(what_arg)
             {
                 error_no = error_no_arg;
             }
@@ -31,6 +37,13 @@ namespace Core
         private:
             int error_no;
     };
+
+    class gai_runtime_error: public Core::socket_runtime_error
+    {
+        public:
+            using Core::socket_runtime_error::socket_runtime_error;
+    };
+
 
     /**
      * For thread safe error logging, use this
