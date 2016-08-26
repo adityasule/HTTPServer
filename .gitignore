@@ -1,5 +1,6 @@
 # Binary directory
 bin/*
+build/*
 
 # My ycm file. I don't know why the hell it's here but its annoyint
 .ycm_extra_conf.pyc
